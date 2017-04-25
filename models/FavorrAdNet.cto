@@ -1,0 +1,102 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+namespace io.favorr.adnetwork
+
+/* Participant: Publisher and Advertiser */
+participant Person identified by _id {
+  o String _id
+  o DateTime createdAt
+  o String favorr_user_id optional
+  o String email
+  o String password
+  o String note optional
+  o String status default='ACTIVE'
+  o Integer favorr default=0
+}
+
+/* advertising agreement */
+asset AdvertisingAgreement identified by _id {
+  o String _id
+  o DateTime createdAt
+  o String status default='ACTIVE'
+  o String calc_func default='default'
+  o String note default='' optional
+  --> App publisher
+  --> App advertiser
+  o String designinfo_favorrTextColor default='0::0::0::1'
+  o String designinfo_installButtonColorType default="green"
+  o String designinfo_starColorType default="black"
+  o String designinfo_favorrBackgroundColor default='0.95::0.95::0.95::1'
+}
+
+/* App */
+participant App identified by _id {
+  o String _id
+  o String trackId
+  o DateTime createdAt
+  o String note optional
+  o Integer impressions_recv default=0
+  o Integer clicks_recv default=0
+  o Integer installs_recv default=0
+  o Integer conversions_recv default=0
+  o Integer impressions_sent default=0
+  o Integer clicks_sent default=0
+  o Integer installs_sent default=0
+  o Integer conversions_sent default=0
+  --> Person owner
+  o String[] region_codes optional
+  o String appinfo_trackName optional
+  o String appinfo_icon_url optional
+  o Double appinfo_price optional
+  o Double appinfo_averageUserRatingForCurrentVersion optional
+  o Double appinfo_userRatingCountForCurrentVersion optional
+  o DateTime appinfo_updatedAt optional
+}
+
+/*
+ *  I think we should also keep which user watch/click/install which app somewhere...
+ * This record is not for transaction but need to know to
+ */
+participant User identified by _id {
+  o String _id
+  o DateTime createdAt
+  o Integer impression_count default=1
+  o Integer click_count default=0
+  o Integer install_count default=0
+  o String[] impression_app optional
+  o String[] click_app optional
+  o String[] install_app optional
+  o DateTime last_clickedAt optional
+  o String last_clicked_agreement_id optional
+}
+
+/* Impression, Click, and Install */
+transaction AdTransaction identified by _id{
+  o String _id
+  o DateTime createdAt
+  --> App publisher
+  --> App advertiser
+  --> AdvertisingAgreement agreement
+  --> User user optional
+  o String note optional
+  o String advertising_identifier optional
+  o String remote_ip optional
+  o String deviceName optional
+  o String systemVersion optional
+  o String modelName optional
+  o String modelId optional
+  o String transactionType default='impression'
+  o Integer price default=0
+}
